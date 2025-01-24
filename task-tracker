@@ -10,13 +10,15 @@ const FILE_PATH = './db.json';
 /**
  * Status of task
  */
-enum Status: string {
+enum Status: string
+{
     case DONE = 'done';
     case PENDING = "pending";
-    case IN_PROGRESS = "in_progress";
+    case IN_PROGRESS = "in-progress";
 }
 
-class Task {
+class Task
+{
     private ?int $id = null;
     private ?Status $status = null;
     private ?string $description = null;
@@ -36,42 +38,52 @@ class Task {
         $this->updated_at = $now;
     }
 
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
-    public function setId(?int $id): ?self {
+    public function setId(?int $id): ?self
+    {
         $this->id = $id;
         return $this;
     }
 
-    public function getStatus(): ?Status {
+    public function getStatus(): ?Status
+    {
         return $this->status;
     }
-    public function setStatus(?Status $status): ?self {
+    public function setStatus(?Status $status): ?self
+    {
         $this->status = $status;
         return $this;
     }
 
-    public function getDescription(): ?string {
+    public function getDescription(): ?string
+    {
         return $this->description;
     }
-    public function setDescription(?string $description): ?self {
+    public function setDescription(?string $description): ?self
+    {
         $this->description = $description;
         return $this;
     }
 
-    public function getCreatedAt(): ?DateTime {
+    public function getCreatedAt(): ?DateTime
+    {
         return $this->created_at;
     }
-    public function setCreatedAt(?DateTime $created_at): ?self {
+    public function setCreatedAt(?DateTime $created_at): ?self
+    {
         $this->created_at = $created_at;
         return $this;
     }
 
-    public function getUpdatedAt(): ?DateTime {
+    public function getUpdatedAt(): ?DateTime
+    {
         return $this->updated_at;
     }
-    public function setUpdatedAt(?DateTime $updated_at): ?self {
+    public function setUpdatedAt(?DateTime $updated_at): ?self
+    {
         $this->updated_at = $updated_at;
         return $this;
     }
@@ -82,31 +94,26 @@ class Task {
     }
 }
 
-function main($argv) {
+function main($argv)
+{
 
     // Remove the script name from arguments
     array_shift($argv);
-    
-    if (empty($argv)) {
-        echo "Usage: task-manager <command>\n";
-        echo "Available commands:\n";
-        echo "  list                                            - List all tasks\n";
-        echo "  list    <'done' | 'pending' | 'in_progress'>    - List tasks based in status\n";
-        echo "  add     <task-description>                      - Add a new task\n";
-        echo "  remove  <task-id>                               - Remove a task\n";
-        echo "  update  <task-id>   <new-description>           - Remove a task\n";
-        return;
-    }
+
+    if (empty($argv)) showAvailableCommands();
 
     $command = $argv[0];
-    
+
     switch ($command) {
+        case 'help';
+            showAvailableCommands();
+            break;
         case 'list':
             $status = isset($argv[1]) ? Status::tryFrom($argv[1]) : null;
             listTasks($status);
             break;
         case 'add':
-            if(!isset($argv[1])) {
+            if (!isset($argv[1])) {
                 echo "Task description is required\n";
                 return;
             } else {
@@ -114,16 +121,30 @@ function main($argv) {
             }
             break;
         case 'update':
-            if(!isset($argv[1])) {
+            if (!isset($argv[1])) {
                 echo "Task ID is required\n";
                 return;
-            } else if (!isset($argv[2])){
+            } else if (!isset($argv[2])) {
                 echo "New description is required\n";
             }
-            updateTask($argv[1], $argv[2]);
+            updateTask(id: $argv[1], description: $argv[2]);
+            break;
+        case 'mark-done':
+            if (!isset($argv[1])) {
+                echo "Task ID is required\n";
+                return;
+            }
+            updateTask(id: $argv[1], status: Status::DONE);
+            break;
+        case 'mark-in-progress':
+            if (!isset($argv[1])) {
+                echo "Task ID is required\n";
+                return;
+            }
+            updateTask(id: $argv[1], status: Status::IN_PROGRESS);
             break;
         case 'delete':
-            if(!isset($argv[1])) {
+            if (!isset($argv[1])) {
                 echo "Task ID is required\n";
                 return;
             }
@@ -138,7 +159,8 @@ function main($argv) {
 /**
  * Function that returns database, if file does not exists, it creates it
  */
-function getDatabase(): array {
+function getDatabase(): array
+{
     if (!file_exists(FILE_PATH)) {
         return [];
     } else {
@@ -152,18 +174,19 @@ function getDatabase(): array {
  * 
  * @param ?Status $status   (Optional) Status filter if needed
  */
-function listTasks(?Status $status = null){
+function listTasks(?Status $status = null)
+{
     $data = getDatabase();
     $message = "List of all tasks: \n";
-    if($status){
+    if ($status) {
         $message = "List of tasks with status {$status->value}:\n";
-        $data = array_filter($data, function($task) use ($status){
+        $data = array_filter($data, function ($task) use ($status) {
             return $task['status'] === $status->value;
         });
     }
     echo $message;
-    foreach($data as $task) {
-        echo "{$task['id']} - {$task['description']} ({$task['status']})\n";
+    foreach ($data as $task) {
+        echo "{$task['id']} - {$task['description']} ({$task['status']}) - ({$task['updated_at']['date']})\n";
     }
 }
 
@@ -172,7 +195,8 @@ function listTasks(?Status $status = null){
  * 
  * @param ?string $description  Task description
  */
-function addTask(string $description){
+function addTask(string $description)
+{
     $data = getDatabase();
     $index = $data[count($data) - 1]['id'] + 1;
     $task = new Task(
@@ -187,20 +211,23 @@ function addTask(string $description){
 /**
  * Function to update a task description
  * 
- * @param string $id    Task ID to update
- * @param string $description   New task description
+ * @param string  $id    Task ID to update
+ * @param ?string $description   New task description
+ * @param ?Status $status   New task status
  */
-function updateTask(string $id, string $description){
+function updateTask(string $id, ?string $description = null, ?Status $status = null)
+{
     $data = getDatabase();
     $index = array_search($id, array_column($data, 'id'));
-    if(!$index){
+    if (is_null($index)) {
         echo "Task $id not found";
         return;
     }
-    $data[$index]['description'] = $description;
+    if ($description) $data[$index]['description'] = $description;
+    if ($status) $data[$index]['status'] = $status->value;
     $data[$index]['updated_at'] = new DateTime('now');
     file_put_contents(FILE_PATH, json_encode($data));
-    echo "Task $id updated succesfully";
+    echo "Task updated succesfully (ID: $id)";
 }
 
 /**
@@ -208,13 +235,26 @@ function updateTask(string $id, string $description){
  * 
  * @param string $id    Task ID
  */
-function deleteTask(string $id){
+function deleteTask(string $id)
+{
     $data = getDatabase();
-    $data = array_filter($data, function($task) use ($id){
+    $data = array_filter($data, function ($task) use ($id) {
         return strval($task['id']) !== $id;
     });
     file_put_contents(FILE_PATH, json_encode($data));
-    echo "Task deleted succesfully";
+    echo "Task deleted succesfully (ID: $id)";
+}
+
+function showAvailableCommands()
+{
+    echo "Usage: task-manager <command>\n";
+    echo "Available commands:\n";
+    echo "  list                                            - List all tasks\n";
+    echo "  list    <'done'|'pending'|'in_progress'>        - List tasks based in status\n";
+    echo "  add     <task-description>                      - Add a new task\n";
+    echo "  remove  <task-id>                               - Remove a task\n";
+    echo "  update  <task-id> <new-description>             - Remove a task\n";
+    return;
 }
 
 main($argv);
