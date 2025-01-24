@@ -20,6 +20,8 @@ class Task {
     private ?int $id = null;
     private ?Status $status = null;
     private ?string $description = null;
+    private ?DateTime $created_at = null;
+    private ?DateTime $updated_at = null;
 
     public function __construct(
         ?int $id = null,
@@ -29,6 +31,9 @@ class Task {
         $this->id = $id;
         $this->status = $status;
         $this->description = $description;
+        $now = new DateTime('now');
+        $this->created_at = $now;
+        $this->updated_at = $now;
     }
 
     public function getId(): ?int {
@@ -54,6 +59,23 @@ class Task {
         $this->description = $description;
         return $this;
     }
+
+    public function getCreatedAt(): ?DateTime {
+        return $this->created_at;
+    }
+    public function setCreatedAt(?DateTime $created_at): ?self {
+        $this->created_at = $created_at;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?DateTime {
+        return $this->updated_at;
+    }
+    public function setUpdatedAt(?DateTime $updated_at): ?self {
+        $this->updated_at = $updated_at;
+        return $this;
+    }
+
     public function jsonSerialize()
     {
         return get_object_vars($this);
@@ -91,8 +113,21 @@ function main($argv) {
                 addTask($argv[1]);
             }
             break;
-        case 'remove':
-            echo "Removing task...\n";
+        case 'update':
+            if(!isset($argv[1])) {
+                echo "Task ID is required\n";
+                return;
+            } else if (!isset($argv[2])){
+                echo "New description is required\n";
+            }
+            updateTask($argv[1], $argv[2]);
+            break;
+        case 'delete':
+            if(!isset($argv[1])) {
+                echo "Task ID is required\n";
+                return;
+            }
+            deleteTask($argv[1]);
             break;
         default:
             echo "Unknown command: $command\n";
@@ -113,24 +148,8 @@ function getDatabase(): array {
 }
 
 /**
- * Function to create a new task
- * 
- * @param ?string $description  Task description
- */
-function addTask(string $description){
-    $data = getDatabase();
-    $index = count($data);
-    $task = new Task(
-        id: $index,
-        description: $description
-    );
-    array_push($data, $task->jsonSerialize());
-    file_put_contents(FILE_PATH, json_encode($data));
-    echo "Task added succesfully (ID: $index)";
-}
-
-/**
  * Function to list tasks
+ * 
  * @param ?Status $status   (Optional) Status filter if needed
  */
 function listTasks(?Status $status = null){
@@ -146,6 +165,56 @@ function listTasks(?Status $status = null){
     foreach($data as $task) {
         echo "{$task['id']} - {$task['description']} ({$task['status']})\n";
     }
+}
+
+/**
+ * Function to create a new task
+ * 
+ * @param ?string $description  Task description
+ */
+function addTask(string $description){
+    $data = getDatabase();
+    $index = $data[count($data) - 1]['id'] + 1;
+    $task = new Task(
+        id: $index,
+        description: $description
+    );
+    array_push($data, $task->jsonSerialize());
+    file_put_contents(FILE_PATH, json_encode($data));
+    echo "Task added succesfully (ID: $index)";
+}
+
+/**
+ * Function to update a task description
+ * 
+ * @param string $id    Task ID to update
+ * @param string $description   New task description
+ */
+function updateTask(string $id, string $description){
+    $data = getDatabase();
+    $index = array_search($id, array_column($data, 'id'));
+    if(!$index){
+        echo "Task $id not found";
+        return;
+    }
+    $data[$index]['description'] = $description;
+    $data[$index]['updated_at'] = new DateTime('now');
+    file_put_contents(FILE_PATH, json_encode($data));
+    echo "Task $id updated succesfully";
+}
+
+/**
+ * Function to delete a task
+ * 
+ * @param string $id    Task ID
+ */
+function deleteTask(string $id){
+    $data = getDatabase();
+    $data = array_filter($data, function($task) use ($id){
+        return strval($task['id']) !== $id;
+    });
+    file_put_contents(FILE_PATH, json_encode($data));
+    echo "Task deleted succesfully";
 }
 
 main($argv);
