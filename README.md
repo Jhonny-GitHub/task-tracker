@@ -17,9 +17,14 @@ A simple task tracker application built with php based as an exercise from https
 
 ## Installation
 
-In order to make it work you should run the next command in root folder in order to make it executable.
+Run the next command in root folder in order to make it executable.
 ```bash
 $ chmod +x task-tracker
+```
+
+Now you can execute command like this:
+```bash
+$ ./task-tracker
 ```
 
 
