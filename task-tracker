@@ -250,7 +250,7 @@ function showAvailableCommands()
     echo "Usage: task-manager <command>\n";
     echo "Available commands:\n";
     echo "  list                                            - List all tasks\n";
-    echo "  list    <'done'|'pending'|'in_progress'>        - List tasks based in status\n";
+    echo "  list    <'done'|'pending'|'in-progress'>        - List tasks based in status\n";
     echo "  add     <task-description>                      - Add a new task\n";
     echo "  remove  <task-id>                               - Remove a task\n";
     echo "  update  <task-id> <new-description>             - Remove a task\n";
