@@ -32,7 +32,7 @@ $ ./task-tracker
 
 The tracker must be able to create, update, delete and show tasks. To see full available commands you can run "task-tracker help" and it will show you the available commands.
 ```bash
-$ task-tracker help
+$ ./task-tracker help
 
 Usage: task-manager <command>
 Available commands:
@@ -47,7 +47,7 @@ Available commands:
 
 In order to create a task
 ```bash
-$ task-tracker add "Lorem ipsum dolor"
+$ ./task-tracker add "Lorem ipsum dolor"
 
 Task added succesfully (ID: 1)
 ```
@@ -58,7 +58,7 @@ Task added succesfully (ID: 1)
 In order to update a task description you shoul run the command "task-tracker update \<task-id> \<new-description>".
 
 ```bash
-$ task-tracker update 1 "Lorem ipsum dolor sit amet"
+$ ./task-tracker update 1 "Lorem ipsum dolor sit amet"
 
 Task updated succesfully (ID: 1)
 ```
@@ -69,7 +69,7 @@ Task updated succesfully (ID: 1)
 In order to delete a task you should run the command "task-tracker delete \<task-id>".
 
 ```bash
-$ task-tracker delete 1
+$ ./task-tracker delete 1
 
 Task deleted succesfully (ID: 1)
 ```
@@ -78,7 +78,7 @@ Task deleted succesfully (ID: 1)
 In order to show a list of tasks you should run the command "task-tracker list". This will output the list of tasks with their id, description, status and last uptate date.
 
 ```bash
-$ task-tracker list
+$ ./task-tracker list
 
 List of all tasks: 
 1 - Command to add task (pending) - (2025-01-24 23:54:17.689552)
@@ -91,13 +91,13 @@ List of all tasks:
 
 And also you can add a parameter to filter the list of tasks with the status.
 ```bash
-$ task-tracker list pending
+$ ./task-tracker list pending
 
 List of tasks with status pending:
 1 - Command to add task (pending) - (2025-01-24 23:54:17.689552)
 ````
 ```bash
-$ task-tracker list in-progress
+$ ./task-tracker list in-progress
 
 List of tasks with status in-progress:
 3 - Command to remove task (in-progress) - (2025-01-25 00:33:56.007356)
@@ -105,7 +105,7 @@ List of tasks with status in-progress:
 5 - Command to list tasks with given status (in-progress) - (2025-01-25 00:33:59.787877)
 ```
 ```bash
-$ task-tracker list done
+$ ./task-tracker list done
 
 Output
 List of tasks with status done: 
